@@ -41,7 +41,7 @@ export const generateProfessionalPrompt = async (
   return "Configuração incompleta: defina a variável VITE_GEMINI_API_KEY na Vercel para ativar a geração de prompts.";
 }
     const response = await ai.models.generateContent({
-      model: GEMINI_MODELS.characterPixar,
+      model: GEMINI_MODELS.textPrompt,
       contents: inputDescription,
       config: {
         systemInstruction: systemInstruction,
