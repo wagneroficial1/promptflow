@@ -156,3 +156,43 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
                   type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                  placeholder="Senha"
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Aguarde...' : isLogin ? 'Entrar' : 'Criar conta'}
+              {!isLoading && <ArrowRight className="w-5 h-5" />}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError(null);
+                setInfo(null);
+              }}
+              className="text-slate-400 hover:text-white transition-colors text-sm"
+            >
+              {isLogin
+                ? 'Não tem conta? Criar agora'
+                : 'Já tem conta? Fazer login'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
