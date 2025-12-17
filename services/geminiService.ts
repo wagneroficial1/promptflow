@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export const generateProfessionalPrompt = async (
   systemInstruction: string,
@@ -33,6 +34,10 @@ export const generateProfessionalPrompt = async (
   Gere APENAS o prompt final, sem introduções como "Aqui está seu prompt:".`;
 
   try {
+
+    if (!ai) {
+  return "Configuração incompleta: defina a variável VITE_GEMINI_API_KEY na Vercel para ativar a geração de prompts.";
+}
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: inputDescription,
