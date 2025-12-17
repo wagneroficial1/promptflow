@@ -1,4 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
+import { GEMINI_MODELS } from "./geminiModels";
+
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
@@ -39,7 +41,7 @@ export const generateProfessionalPrompt = async (
   return "Configuração incompleta: defina a variável VITE_GEMINI_API_KEY na Vercel para ativar a geração de prompts.";
 }
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro',
+      model: GEMINI_MODELS.characterPixar,
       contents: inputDescription,
       config: {
         systemInstruction: systemInstruction,
