@@ -1,0 +1,50 @@
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+export const generateProfessionalPrompt = async (
+  systemInstruction: string,
+  userInputs: Record<string, string>,
+  targetLanguage: string = "Português (Brasil)",
+  targetPlatform: string = "ChatGPT"
+): Promise<string> => {
+  
+  // Construct a clear message for the AI based on the inputs
+  let inputDescription = "Aqui estão os dados fornecidos pelo usuário para criar o prompt:\n";
+  for (const [key, value] of Object.entries(userInputs)) {
+    inputDescription += `- ${key}: ${value}\n`;
+  }
+
+  inputDescription += `\nCom base nisso, gere o Prompt final otimizado.
+  
+  DIRETRIZES CRÍTICAS DE GERAÇÃO:
+  1. O Prompt em si deve ser escrito em INGLÊS (English), pois funciona melhor na maioria das IAs, exceto se a plataforma especificada preferir outro idioma nativamente.
+  2. O prompt gerado DEVE instruir a IA final a escrever o resultado (o roteiro, a legenda, a resposta) em: ${targetLanguage}.
+  3. Integre essa instrução de idioma de forma natural no início ou corpo do prompt.
+  
+  DIRETRIZES DA PLATAFORMA (${targetPlatform}):
+  Adapte a estrutura e sintaxe do prompt especificamente para a ferramenta '${targetPlatform}':
+  
+  - Se for 'Kling', 'Hailuo', 'Runway' ou 'Seedance' (Vídeo): O prompt DEVE focar puramente em descrições visuais, movimento de câmera, física e iluminação. Ignore pedidos de roteiro de fala. Use estruturas como "Scene description: [details], Camera Movement: [move], Atmosphere: [mood]". Adicione Negative Prompts se comum para essa ferramenta.
+  - Se for 'Midjourney' ou 'Nano Banana' (Imagem): Use parâmetros específicos (ex: --ar 16:9, --v 6) se apropriado, foque em estilo artístico, lentes e renderização.
+  - Se for 'Grok', 'ChatGPT', 'Claude', 'Gemini' (Texto/Chat): Use estrutura Markdown, peça personas claras, e formatação de texto (negrito, listas). Se for Grok, permita um tom mais "witty" ou direto se o usuário pedir.
+  - Se for 'HeyGen' (Avatar): Foque no roteiro de fala que o avatar vai ler e na descrição da aparência do avatar se for criação de avatar personalizado.
+  
+  Gere APENAS o prompt final, sem introduções como "Aqui está seu prompt:".`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: inputDescription,
+      config: {
+        systemInstruction: systemInstruction,
+        temperature: 0.7, // Creativity balance
+      }
+    });
+
+    return response.text || "Não foi possível gerar o prompt. Tente novamente.";
+  } catch (error) {
+    console.error("Erro ao gerar prompt com Gemini:", error);
+    return "Erro ao conectar com a IA. Verifique sua chave de API ou tente novamente mais tarde.";
+  }
+};
