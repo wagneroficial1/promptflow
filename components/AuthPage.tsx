@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import { Mail, Lock, ArrowRight, User as UserIcon } from 'lucide-react';
+import { supabase } from '../services/supabaseClient';
 
 interface AuthPageProps {
   onLogin: (user: User) => void;
@@ -13,18 +14,70 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Mensagens de feedback
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      setIsLoading(false);
-      onLogin({
-        email: email,
-        name: isLogin ? email.split('@')[0] : name,
+    setError(null);
+    setInfo(null);
+
+    try {
+      if (isLogin) {
+        // LOGIN
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+        if (!data.user) throw new Error('Login não retornou usuário.');
+
+        onLogin({
+          email: data.user.email ?? email,
+          name:
+            (data.user.user_metadata?.name as string | undefined) ??
+            (data.user.email ? data.user.email.split('@')[0] : 'Usuário'),
+        });
+
+        return;
+      }
+
+      // REGISTRO
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name },
+        },
       });
-    }, 1500);
+
+      if (error) throw error;
+
+      // Se exigir confirmação por email
+      if (!data.user) {
+        setInfo(
+          'Conta criada com sucesso. Verifique seu email para confirmar o cadastro e depois faça login.'
+        );
+        setIsLogin(true);
+        return;
+      }
+
+      // Se não exigir confirmação, entra direto
+      onLogin({
+        email: data.user.email ?? email,
+        name: (data.user.user_metadata?.name as string | undefined) ?? name,
+      });
+    } catch (err: any) {
+      setError(
+        err?.message ||
+          'Erro ao autenticar. Verifique seus dados e tente novamente.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -41,13 +94,29 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             {isLogin ? 'Bem-vindo de volta' : 'Crie sua conta'}
           </h2>
           <p className="text-center text-slate-400 mb-8">
-            {isLogin ? 'Entre para acessar seus templates.' : 'Comece a criar prompts incríveis hoje.'}
+            {isLogin
+              ? 'Entre para acessar seus templates.'
+              : 'Comece a criar prompts incríveis hoje.'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-300 text-sm rounded-lg p-3">
+                {error}
+              </div>
+            )}
+
+            {info && (
+              <div className="bg-blue-500/10 border border-blue-500/30 text-blue-300 text-sm rounded-lg p-3">
+                {info}
+              </div>
+            )}
+
             {!isLogin && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Nome</label>
+                <label className="text-sm font-medium text-slate-300">
+                  Nome
+                </label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                   <input
@@ -63,7 +132,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Email</label>
+              <label className="text-sm font-medium text-slate-300">
+                Email
+              </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
@@ -78,49 +149,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Senha</label>
+              <label className="text-sm font-medium text-slate-300">
+                Senha
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
                   type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition-all duration-200 flex items-center justify-center mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                <>
-                  {isLogin ? 'Entrar' : 'Registrar'}
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-        
-        <div className="bg-slate-950/50 p-4 text-center border-t border-slate-800">
-          <p className="text-slate-400 text-sm">
-            {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="ml-2 text-purple-400 hover:text-purple-300 font-medium transition-colors"
-            >
-              {isLogin ? "Registre-se" : "Faça login"}
-            </button>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
