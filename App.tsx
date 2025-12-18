@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import LandingPage from './pages/LandingPage';
+import LandingPage from './LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MainApp from './MainApp';
