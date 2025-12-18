@@ -3,17 +3,50 @@ import { LandingPage } from './components/LandingPage';
 import { AuthPage } from './components/AuthPage';
 import { Dashboard } from './components/Dashboard';
 import { ViewState, User } from './types';
+import { LandingPage } from "./Components/LandingPage";
 
 function App() {
   const [view, setView] = useState<ViewState>('landing');
   const [user, setUser] = useState<User | null>(null);
-  
+
   // Theme Management
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check local storage or system preference
     const savedTheme = localStorage.getItem('theme');
     return savedTheme ? savedTheme === 'dark' : true;
   });
+
+  // 👉 NOVA HOME (Landing Page)
+  if (view === 'landing') {
+    return (
+      <LandingPage
+        onLogin={() => setView('login')}
+        onRegister={() => setView('register')}
+      />
+    );
+  }
+
+  // 👉 As outras views continuam funcionando normalmente
+  if (view === 'login') {
+    return <Login onBack={() => setView('landing')} onSuccess={setUser} />;
+  }
+
+  if (view === 'register') {
+    return <Register onBack={() => setView('landing')} />;
+  }
+
+  // 👉 App principal (usuário logado)
+  return (
+    <MainApp
+      user={user}
+      onLogout={() => {
+        setUser(null);
+        setView('landing');
+      }}
+      isDarkMode={isDarkMode}
+      setIsDarkMode={setIsDarkMode}
+    />
+  );
+}
 
   useEffect(() => {
     const root = window.document.documentElement;
