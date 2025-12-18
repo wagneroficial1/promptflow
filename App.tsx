@@ -1,12 +1,8 @@
-import { useState } from 'react';
-
 import LandingPage from './components/LandingPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import MainApp from './MainApp';
 
-import type { User } from './types/User';
-import type { ViewState } from './types/ViewState';
+export default function App() {
+  return <LandingPage />;
+}
 
 function App() {
   const [view, setView] = useState<ViewState>('landing');
