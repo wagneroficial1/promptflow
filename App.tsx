@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { LandingPage } from './components/LandingPage';
+import { AuthPage } from './components/AuthPage';
 
 export default function App() {
-  const handleStart = () => {
-    window.location.href = '/login';
-  };
+  const [screen, setScreen] = useState<'landing' | 'auth'>('landing');
 
-  return <LandingPage onStart={handleStart} />;
+  if (screen === 'auth') {
+    return <AuthPage />;
+  }
+
+  return <LandingPage onStart={() => setScreen('auth')} />;
 }
+
 
