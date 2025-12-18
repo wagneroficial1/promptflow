@@ -1,3 +1,12 @@
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
 import { GoogleGenAI } from "@google/genai";
 import { GEMINI_MODELS } from "./geminiModels";
 
