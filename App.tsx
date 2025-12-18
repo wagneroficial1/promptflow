@@ -1,5 +1,10 @@
 import { LandingPage } from './components/LandingPage';
 
 export default function App() {
-  return <LandingPage />;
+  const handleStart = () => {
+    window.location.href = '/login';
+  };
+
+  return <LandingPage onStart={handleStart} />;
 }
+
