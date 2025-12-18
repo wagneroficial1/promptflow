@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { GEMINI_MODELS } from "./geminiModels";
+import { enqueue } from "./requestQueue";
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
