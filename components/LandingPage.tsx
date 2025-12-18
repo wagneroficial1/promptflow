@@ -49,19 +49,36 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
 
       {/* Header / Nav */}
       <header className="relative z-20 max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
-            <Wand2 className="w-5 h-5 text-black" />
-          </div>
-          <span className="text-xl font-bold tracking-tight">PromptFlow</span>
-        </div>
-        <button
-          onClick={onStart}
-          className="px-5 py-2 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-slate-200 hover:bg-white hover:text-black transition-all backdrop-blur"
-        >
-          Comece Gratuitamente
-        </button>
-      </header>
+  <div className="flex items-center gap-2">
+    <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
+      <Wand2 className="w-5 h-5 text-black" />
+    </div>
+    <span className="text-xl font-bold tracking-tight">PromptFlow</span>
+  </div>
+
+  {/* Ações do topo */}
+  <div className="flex items-center gap-4">
+    {/* Botão Planos (secundário) */}
+    <button
+      onClick={() => {
+        const el = document.getElementById('planos');
+        el?.scrollIntoView({ behavior: 'smooth' });
+      }}
+      className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-colors"
+    >
+      Planos
+    </button>
+
+    {/* CTA principal */}
+    <button
+      onClick={onStart}
+      className="px-5 py-2 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-slate-200 hover:bg-white hover:text-black transition-all backdrop-blur"
+    >
+      Comece Gratuitamente
+    </button>
+  </div>
+</header>
+
 
       {/* Main Hero Section */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-32 text-center">
