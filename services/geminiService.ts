@@ -1,3 +1,6 @@
+import { GoogleGenAI } from "@google/genai";
+import { GEMINI_MODELS } from "./geminiModels";
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -6,10 +9,63 @@ function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+// ✅ Detecta rate limit (429) de forma resiliente
+function isRateLimitError(err: unknown): boolean {
+  const anyErr = err as any;
+  const status = anyErr?.status ?? anyErr?.response?.status;
+  const message = String(anyErr?.message ?? "");
 
-import { GoogleGenAI } from "@google/genai";
-import { GEMINI_MODELS } from "./geminiModels";
+  return status === 429 || message.includes("429") || message.toLowerCase().includes("rate");
+}
 
+// ✅ Queue simples: serializa chamadas para reduzir 429 (por usuário/navegador)
+let requestQueue: Promise<void> = Promise.resolve();
+
+function enqueue<T>(task: () => Promise<T>): Promise<T> {
+  const run = requestQueue.then(task, task);
+  requestQueue = run.then(() => undefined, () => undefined);
+  return run;
+}
+
+// ✅ Retry inteligente só para 429 (1–3s + tentativas limitadas)
+async function generateWithRetry(params: {
+  systemInstruction: string;
+  inputDescription: string;
+  model: string;
+  temperature?: number;
+  maxRetries?: number;
+}): Promise<string> {
+  const { systemInstruction, inputDescription, model, temperature = 0.7, maxRetries = 2 } = params;
+
+  let attempt = 0;
+
+  while (true) {
+    try {
+      const response = await ai!.models.generateContent({
+        model,
+        contents: inputDescription,
+        config: {
+          systemInstruction,
+          temperature,
+        },
+      });
+
+      return response.text || "Não foi possível gerar o prompt. Tente novamente.";
+    } catch (error) {
+      // Só faz retry para 429
+      if (isRateLimitError(error) && attempt < maxRetries) {
+        attempt++;
+        const waitMs = randomInt(1000, 3000);
+        console.warn(`[Gemini] 429 detectado. Retry ${attempt}/${maxRetries} em ${waitMs}ms`);
+        await sleep(waitMs);
+        continue;
+      }
+
+      // Outros erros (ou 429 após estourar retries): re-lança para cair no catch externo
+      throw error;
+    }
+  }
+}
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
@@ -20,7 +76,6 @@ export const generateProfessionalPrompt = async (
   targetLanguage: string = "Português (Brasil)",
   targetPlatform: string = "ChatGPT"
 ): Promise<string> => {
-  
   // Construct a clear message for the AI based on the inputs
   let inputDescription = "Aqui estão os dados fornecidos pelo usuário para criar o prompt:\n";
   for (const [key, value] of Object.entries(userInputs)) {
@@ -45,20 +100,22 @@ export const generateProfessionalPrompt = async (
   Gere APENAS o prompt final, sem introduções como "Aqui está seu prompt:".`;
 
   try {
-
     if (!ai) {
-  return "Configuração incompleta: defina a variável VITE_GEMINI_API_KEY na Vercel para ativar a geração de prompts.";
-}
-    const response = await ai.models.generateContent({
-      model: GEMINI_MODELS.textPrompt,
-      contents: inputDescription,
-      config: {
-        systemInstruction: systemInstruction,
-        temperature: 0.7, // Creativity balance
-      }
-    });
+      return "Configuração incompleta: defina a variável VITE_GEMINI_API_KEY na Vercel para ativar a geração de prompts.";
+    }
 
-    return response.text || "Não foi possível gerar o prompt. Tente novamente.";
+    // ✅ Enfileira a geração (queue) + aplica retry inteligente para 429
+    const text = await enqueue(() =>
+      generateWithRetry({
+        systemInstruction,
+        inputDescription,
+        model: GEMINI_MODELS.textPrompt,
+        temperature: 0.7,
+        maxRetries: 2, // 2 retries = até 3 tentativas no total
+      })
+    );
+
+    return text;
   } catch (error) {
     console.error("Erro ao gerar prompt com Gemini:", error);
     return "Erro ao conectar com a IA. Verifique sua chave de API ou tente novamente mais tarde.";
