@@ -14,6 +14,7 @@ import {
 
 interface LandingPageProps {
   onStart: () => void;
+  onPlans: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
@@ -60,13 +61,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
   <div className="flex items-center gap-4">
     {/* Botão Planos (secundário) */}
     <button
-      onClick={() => {
-        const el = document.getElementById('planos');
-        el?.scrollIntoView({ behavior: 'smooth' });
-      }}
-      className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-colors"
-    >
-      Planos
+  onClick={onPlans}
+  className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-colors"
+>
+  Planos
     </button>
 
     {/* CTA principal */}
