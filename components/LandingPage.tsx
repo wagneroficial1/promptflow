@@ -141,29 +141,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
         </div>
 
         {/* CTA Banner Section */}
-        <section className="mt-40 mb-32">
-          <div className="max-w-4xl mx-auto p-12 md:p-20 rounded-[40px] border border-white/10 relative overflow-hidden group backdrop-blur-xl bg-white/[0.04]">
-            {/* inner glow like prototype */}
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[520px] bg-purple-500/18 blur-[120px] group-hover:scale-125 transition-transform duration-700"></div>
-            <div className="absolute -bottom-28 right-[-10%] w-[520px] h-[520px] bg-indigo-500/12 blur-[130px]"></div>
+        <section className="mt-40 mb-32 px-6">
+  <div className="relative max-w-5xl mx-auto rounded-[32px] overflow-hidden border border-white/10 bg-[#0b0b14]">
 
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Desbloqueie Seu{' '}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-400">
-                Potencial Criativo
-              </span>
-            </h2>
-            <p className="text-slate-300/70 text-lg mb-10 max-w-xl mx-auto">
-              Não perca mais horas tentando adivinhar o prompt perfeito. Junte-se a milhares de criadores que já estão no futuro.
-            </p>
-            <button
-              onClick={onStart}
-              className="bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-slate-200 transition-all flex items-center gap-2 mx-auto"
-            >
-              Experimente Gratuitamente <Rocket className="w-5 h-5" />
-            </button>
-          </div>
-        </section>
+    {/* Gradiente interno */}
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-transparent to-pink-500/10 pointer-events-none" />
+
+    {/* Glow suave */}
+    <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-purple-500/20 blur-[140px]" />
+
+    <div className="relative z-10 px-10 py-16 text-center">
+      <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+        Desbloqueie Seu{' '}
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+          Potencial Criativo
+        </span>
+      </h2>
+
+      <p className="text-slate-400 max-w-2xl mx-auto mb-10 text-lg">
+        Não perca mais horas tentando adivinhar o prompt perfeito.
+        Junte-se a milhares de criadores que já estão no futuro.
+      </p>
+
+      <button
+        onClick={onStart}
+        className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-white text-black font-semibold hover:bg-slate-200 transition"
+      >
+        Experimente Gratuitamente 🚀
+      </button>
+    </div>
+  </div>
+</section>
+
 
         {/* Platforms Showcase */}
         <section className="mt-20">
