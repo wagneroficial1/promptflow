@@ -43,7 +43,15 @@ export async function fetchSubscription(): Promise<{
 
   // Ajuste aqui se o seu backend retornar em outro formato.
   // Ex: { plan: "pro" } ou { subscription: { plan: "pro" } }
-  const data = (body?.subscription ?? body) as SubscriptionPayload;
+  const raw = (body?.subscription ?? body) as any;
+
+  const plan = (raw?.plan ?? raw?.plan_id ?? "free") as "free" | "pro" | "business";
+
+  const data: SubscriptionPayload = {
+    plan,
+    status: raw?.status,
+    currentPeriodEnd: raw?.currentPeriodEnd ?? raw?.current_period_end,
+  };
 
   return { ok: true, status: res.status, data };
 }
