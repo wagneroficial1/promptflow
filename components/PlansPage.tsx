@@ -3,9 +3,12 @@ import { Wand2 } from 'lucide-react';
 
 interface PlansPageProps {
   onBack: () => void;
+  onSubscribe: (planId: 'free' | 'pro' | 'business') => void;
 }
 
-export const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
+
+export const PlansPage: React.FC<PlansPageProps> = ({ onBack, onSubscribe }) => {
+
   return (
     <div className="min-h-screen text-white font-sans overflow-x-hidden relative bg-[#05050a]">
       
