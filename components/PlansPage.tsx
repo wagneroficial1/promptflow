@@ -71,7 +71,10 @@ export const PlansPage: React.FC<PlansPageProps> = ({ onBack, onSubscribe }) => 
               <li>• Ideal para testar o fluxo</li>
             </ul>
 
-            <button className="w-full py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition">
+            <button
+              onClick={() => onSubscribe('free')}
+              className="w-full py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition"
+            >
               Começar grátis
             </button>
           </div>
