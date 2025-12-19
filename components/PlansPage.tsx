@@ -98,13 +98,12 @@ export const PlansPage: React.FC<PlansPageProps> = ({ onBack, onSubscribe }) => 
             </ul>
 
             <button
-  onClick={() => onSubscribe('pro')}
-  className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all"
->
-  Assinar Pro
-</button>
-
-
+              onClick={() => onSubscribe('pro')}
+              className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all"
+            >
+              Assinar Pro
+            </button>
+          </div>
 
           {/* BUSINESS */}
           <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-left">
@@ -123,7 +122,10 @@ export const PlansPage: React.FC<PlansPageProps> = ({ onBack, onSubscribe }) => 
               <li>• Prioridade futura</li>
             </ul>
 
-            <button className="w-full py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition">
+            <button
+              onClick={() => onSubscribe('business')}
+              className="w-full py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition"
+            >
               Assinar Business
             </button>
           </div>
