@@ -28,7 +28,7 @@ async function refreshSubscription() {
     // Fonte da verdade: backend → store apenas reflete
     setPlan(result.data.plan);
 
-    console.log('SUBSCRIPTION OK:', result.data);
+    console.log('SUBSCRIPTION OK:', JSON.stringify(result.data, null, 2));
   } else {
     setSubscription(null);
     setPlan('free'); // fallback seguro
