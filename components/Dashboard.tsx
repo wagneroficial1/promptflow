@@ -47,7 +47,21 @@ const PLATFORMS = [
   'Runway Gen-3'
 ];
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, isDarkMode, toggleTheme, onUpgrade }) => {
+export const Dashboard: React.FC<DashboardProps> = ({
+  user,
+  onLogout,
+  isDarkMode,
+  toggleTheme,
+  onUpgrade,
+  subscription,
+  loadingSubscription,
+  subscriptionError,
+}) => {
+
+  const planId = subscription?.plan ?? 'free';
+  const plan = PLANS[planId];
+  const isFree = planId === 'free';
+  
   const [activeCategory, setActiveCategory] = useState<PromptCategory>(PromptCategory.SCRIPT);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
