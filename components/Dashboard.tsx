@@ -464,23 +464,45 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, isDarkMode
                         O prompt será otimizado tecnicamente para a plataforma <strong>{targetPlatform}</strong> (ex: sintaxe específica, duração, parâmetros).
                     </p>
 
-                    <button
-                      onClick={handleGenerate}
-                      disabled={isGenerating || Object.keys(formValues).length === 0}
-                      className="w-full py-4 mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/25 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {isGenerating ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          Gerando com IA...
-                        </>
-                      ) : (
-                        <>
-                          <Wand2 className="w-5 h-5" />
-                          Gerar Prompt Otimizado
-                        </>
-                      )}
-                    </button>
+                    {remaining === 0 ? (
+  <div className="w-full mt-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div>
+      <p className="text-base font-semibold text-slate-900 dark:text-white">
+        Você esgotou seu limite grátis
+      </p>
+      <p className="text-sm text-slate-500 dark:text-white/70">
+        Faça upgrade e tenha mais prompts disponíveis por mês.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      onClick={() => onUpgrade?.()}
+      className="rounded-xl bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 transition"
+    >
+      Upgrade de Plano
+    </button>
+  </div>
+) : (
+  <button
+    onClick={handleGenerate}
+    disabled={isGenerating || Object.keys(formValues).length === 0}
+    className="w-full py-4 mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/25 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+  >
+    {isGenerating ? (
+      <>
+        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        Gerando com IA...
+      </>
+    ) : (
+      <>
+        <Wand2 className="w-5 h-5" />
+        Gerar Prompt Otimizado
+      </>
+    )}
+  </button>
+)}
+
                   </div>
                 </div>
               </div>
