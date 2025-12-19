@@ -5,6 +5,8 @@ import { LogOut, Film, User as UserIcon, Video, Wand2, Copy, Check, ChevronRight
 import { generateProfessionalPrompt } from '../services/geminiService';
 import { PLANS } from '../lib/plan';
 import { loadUsage } from '../lib/usageStore';
+import { incrementUsage } from '../lib/usageStore';
+
 
 interface DashboardProps {
   user: User;
@@ -100,6 +102,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, isDarkMode
       targetLanguage,
       targetPlatform
     );
+
+    incrementUsage();
+    setUsage(loadUsage());
     
     setGeneratedPrompt(result);
     setIsGenerating(false);
