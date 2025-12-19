@@ -18,7 +18,7 @@ export default function App() {
 }
 
 if (screen === 'plans') {
-  return <PlansPage />;
+  return <PlansPage onBack={() => setScreen('landing')} />;
 }
 
 
