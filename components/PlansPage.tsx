@@ -30,51 +30,78 @@ export const PlansPage: React.FC = () => {
 
         {/* Cards de Planos (placeholder visual) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Plano Básico */}
-          <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-left">
-            <h3 className="text-xl font-bold mb-2">Starter</h3>
-            <p className="text-slate-400 mb-6">Para quem está começando</p>
 
-            <div className="text-4xl font-bold mb-6">
-              R$ 29
-              <span className="text-base text-slate-400 font-medium"> / mês</span>
-            </div>
+  {/* FREE */}
+  <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-left">
+    <h3 className="text-xl font-bold mb-1">Free</h3>
+    <p className="text-slate-400 mb-6">Para experimentar sem compromisso</p>
 
-            <ul className="space-y-3 mb-8 text-sm text-slate-300/80">
-              <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-emerald-400" /> Prompts essenciais</li>
-              <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-emerald-400" /> Acesso limitado</li>
-            </ul>
+    <div className="text-4xl font-bold mb-6">
+      R$ 0
+      <span className="text-base text-slate-400 font-medium"> / mês</span>
+    </div>
 
-            <button className="w-full py-3 rounded-full bg-white text-black font-semibold hover:bg-slate-200 transition">
-              Começar
-            </button>
-          </div>
+    <ul className="space-y-3 mb-8 text-sm text-slate-300/80">
+      <li>• 5 prompts por mês</li>
+      <li>• Acesso básico à plataforma</li>
+      <li>• Ideal para testar o fluxo</li>
+    </ul>
 
-          {/* Plano Pro (destaque) */}
-          <div className="relative p-8 rounded-2xl bg-white/[0.06] border border-purple-400/40 backdrop-blur-xl text-left scale-105">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-purple-500 text-xs font-bold">
-              MAIS POPULAR
-            </div>
+    <button className="w-full py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition">
+      Começar grátis
+    </button>
+  </div>
 
-            <h3 className="text-xl font-bold mb-2">Pro</h3>
-            <p className="text-slate-300 mb-6">Para criadores sérios</p>
+  {/* PRO — plano principal */}
+  <div className="relative p-8 rounded-2xl bg-white/[0.06] border border-purple-400/50 backdrop-blur-xl text-left scale-105">
+    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-purple-500 text-xs font-bold">
+      MAIS POPULAR
+    </div>
 
-            <div className="text-4xl font-bold mb-6">
-              R$ 79
-              <span className="text-base text-slate-300 font-medium"> / mês</span>
-            </div>
+    <h3 className="text-xl font-bold mb-1">Pro</h3>
+    <p className="text-slate-300 mb-6">Liberdade para criar todos os dias</p>
 
-            <ul className="space-y-3 mb-8 text-sm text-slate-200">
-              <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-purple-400" /> Todos os prompts</li>
-              <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-purple-400" /> Atualizações semanais</li>
-              <li className="flex gap-2 items-center"><Check className="w-4 h-4 text-purple-400" /> Prioridade</li>
-            </ul>
+    <div className="text-4xl font-bold mb-6">
+      R$ 29
+      <span className="text-base text-slate-300 font-medium"> / mês</span>
+    </div>
 
-            <button className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
-              Assinar Pro <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+    <ul className="space-y-3 mb-8 text-sm text-slate-200">
+      <li>• 600 prompts por mês (≈ 20 por dia)</li>
+      <li>• Todos os templates</li>
+      <li>• Histórico completo</li>
+      <li>• Salvar e reutilizar prompts</li>
+    </ul>
+
+    <button className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all">
+      Assinar Pro
+    </button>
+  </div>
+
+  {/* BUSINESS */}
+  <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-left">
+    <h3 className="text-xl font-bold mb-1">Business</h3>
+    <p className="text-slate-400 mb-6">Para uso profissional e intensivo</p>
+
+    <div className="text-4xl font-bold mb-6">
+      R$ 49
+      <span className="text-base text-slate-400 font-medium"> / mês</span>
+    </div>
+
+    <ul className="space-y-3 mb-8 text-sm text-slate-300/80">
+      <li>• 1200 prompts por mês (≈ 40 por dia)</li>
+      <li>• Uso intensivo sem fricção</li>
+      <li>• Ideal para equipes e agências</li>
+      <li>• Prioridade futura</li>
+    </ul>
+
+    <button className="w-full py-3 rounded-full border border-white/20 text-white hover:bg-white/10 transition">
+      Assinar Business
+    </button>
+  </div>
+
+</div>
+
 
           {/* Plano Business */}
           <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-left">
