@@ -6,7 +6,7 @@ import { generateProfessionalPrompt } from '../services/geminiService';
 import { PLANS } from '../lib/plan';
 import { loadUsage } from '../lib/usageStore';
 import { incrementUsage } from '../lib/usageStore';
-
+import type { SubscriptionPayload } from '../services/subscription';
 
 interface DashboardProps {
   user: User;
@@ -14,7 +14,12 @@ interface DashboardProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
   onUpgrade?: () => void;
+
+  subscription: SubscriptionPayload | null;
+  loadingSubscription: boolean;
+  subscriptionError: string | null;
 }
+
 
 const LANGUAGES = [
   'Português (Brasil)',
