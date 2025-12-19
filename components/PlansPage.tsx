@@ -1,6 +1,11 @@
 import React from 'react';
 
-export const PlansPage: React.FC = () => {
+interface PlansPageProps {
+  onBack: () => void;
+}
+
+export const PlansPage: React.FC<PlansPageProps> = ({ onBack }) => {
+
   return (
     <div className="min-h-screen text-white font-sans overflow-x-hidden relative bg-[#05050a]">
       {/* Background igual ao da Home */}
@@ -15,8 +20,26 @@ export const PlansPage: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40" />
       </div>
 
+      
+{/* Header / Top Bar */}
+<header className="relative z-20 max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+  <div className="flex items-center gap-2">
+    <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
+      <span className="text-black font-bold">✦</span>
+    </div>
+    <span className="text-xl font-bold tracking-tight">PromptFlow</span>
+  </div>
+
+  <button
+    onClick={onBack}
+    className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-colors"
+  >
+    ← Voltar
+  </button>
+</header>
+
       {/* Conteúdo */}
-      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-28 pb-32 text-center">
+      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-32 text-center">
         <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-6">
           Escolha o plano ideal para você
         </h1>
