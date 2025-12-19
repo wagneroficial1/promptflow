@@ -517,8 +517,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     ) : (
       <>
         <Wand2 className="w-5 h-5" />
-        Gerar Prompt Otimizado
-      </>
+          {isFree ? 'Desbloquear (Pro)' : 'Gerar Prompt Otimizado'}
+        </>
     )}
   </button>
 )}
