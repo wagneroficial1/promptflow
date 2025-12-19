@@ -100,14 +100,18 @@ async function refreshSubscription() {
   return (
     <>
 
-      <Dashboard
-        user={user}
-        onLogout={() => {
-          setUser(null);
-          setScreen('landing');
-        }}
-        onUpgrade={() => setScreen('plans')}
-      />
+        <Dashboard
+          user={user}
+          subscription={subscription}
+          loadingSubscription={loadingSubscription}
+          subscriptionError={subscriptionError}
+          onLogout={() => {
+            setUser(null);
+            setScreen('landing');
+          }}
+          onUpgrade={() => setScreen('plans')}
+        />
+
     </>
   );
 }
