@@ -1,15 +1,26 @@
+import { PlansPage } from './components/PlansPage';
 import { useState } from 'react';
 import { LandingPage } from './components/LandingPage';
 import { AuthPage } from './components/AuthPage';
 import { Dashboard } from './components/Dashboard';
 
 export default function App() {
-  const [screen, setScreen] = useState<'landing' | 'auth' | 'dashboard'>('landing');
+  const [screen, setScreen] = useState<'landing' | 'auth' | 'dashboard' | 'plans'>('landing');
   const [user, setUser] = useState<any>(null);
 
   if (screen === 'landing') {
-    return <LandingPage onStart={() => setScreen('auth')} />;
-  }
+  return (
+    <LandingPage
+      onStart={() => setScreen('auth')}
+      onPlans={() => setScreen('plans')}
+    />
+  );
+}
+
+if (screen === 'plans') {
+  return <PlansPage />;
+}
+
 
   if (screen === 'auth') {
     return (
