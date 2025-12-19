@@ -99,4 +99,5 @@ export const PlansPage: React.FC = () => {
       </main>
     </div>
   );
+  
 };
