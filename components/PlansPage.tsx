@@ -97,10 +97,13 @@ export const PlansPage: React.FC<PlansPageProps> = ({ onBack, onSubscribe }) => 
               <li>• Salvar e reutilizar prompts</li>
             </ul>
 
-            <button className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all">
-              Assinar Pro
-            </button>
-          </div>
+            <button
+        onClick={() => onSubscribe('pro')}
+        className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all"
+      >
+        Assinar Pro
+      </button>
+
 
           {/* BUSINESS */}
           <div className="p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-left">
