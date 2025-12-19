@@ -29,6 +29,7 @@ export const PlansPage: React.FC = () => {
         </p>
 
         {/* Cards de Planos (placeholder visual) */}
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
   {/* FREE */}
@@ -101,6 +102,7 @@ export const PlansPage: React.FC = () => {
   </div>
 
 </div>
+
 
 
           {/* Plano Business */}
