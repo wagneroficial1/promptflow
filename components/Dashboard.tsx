@@ -267,7 +267,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         Seu plano atual
       </p>
       <p className="text-lg font-semibold text-slate-900 dark:text-white">
-        {plan.name}{' '}
+        {loadingSubscription ? 'Validando...' : subscriptionError ? 'Erro ao validar' : plan.name}{' '}
         <span className="text-sm font-normal text-slate-500 dark:text-white/60">
           · {plan.limit} prompts/mês
         </span>
