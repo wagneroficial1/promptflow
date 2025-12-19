@@ -502,10 +502,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   </div>
 ) : (
   <button
-    onClick={handleGenerate}
+    onClick={() => {
+      if (isFree) return onUpgrade();
+      handleGenerate();
+    }}
     disabled={isGenerating || Object.keys(formValues).length === 0}
     className="w-full py-4 mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/25 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-  >
+  >  
     {isGenerating ? (
       <>
         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
