@@ -41,6 +41,8 @@ if (screen === 'plans') {
         setUser(null);
         setScreen('landing');
       }}
+      onUpgrade={() => setScreen('plans')}
+
     />
   );
 }
