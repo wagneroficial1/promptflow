@@ -98,11 +98,12 @@ export const PlansPage: React.FC<PlansPageProps> = ({ onBack, onSubscribe }) => 
             </ul>
 
             <button
-        onClick={() => onSubscribe('pro')}
-        className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all"
-      >
-        Assinar Pro
-      </button>
+  onClick={() => onSubscribe('pro')}
+  className="w-full py-3 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold hover:scale-[1.02] transition-all"
+>
+  Assinar Pro
+</button>
+
 
 
           {/* BUSINESS */}
