@@ -48,9 +48,6 @@ export default function App() {
   if (screen === 'auth') {
     return (
       <>
-        <div className="fixed bottom-3 left-3 z-[9999] text-xs bg-black/70 text-white px-2 py-1 rounded">
-          screen: {screen}
-        </div>
 
         <AuthPage
           onBack={() => setScreen('landing')}
