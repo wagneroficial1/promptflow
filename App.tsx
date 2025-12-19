@@ -1,5 +1,5 @@
 import { PlansPage } from './components/PlansPage';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LandingPage } from './components/LandingPage';
 import { AuthPage } from './components/AuthPage';
 import { Dashboard } from './components/Dashboard';
