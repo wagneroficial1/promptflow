@@ -13,6 +13,7 @@ interface DashboardProps {
   onLogout: () => void;
   isDarkMode: boolean;
   toggleTheme: () => void;
+  onUpgrade?: () => void;
 }
 
 const LANGUAGES = [
@@ -41,7 +42,7 @@ const PLATFORMS = [
   'Runway Gen-3'
 ];
 
-export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, isDarkMode, toggleTheme }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, isDarkMode, toggleTheme, onUpgrade }) => {
   const [activeCategory, setActiveCategory] = useState<PromptCategory>(PromptCategory.SCRIPT);
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
