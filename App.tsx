@@ -1,3 +1,4 @@
+import { setPlan } from './lib/usageStore';
 import { PlansPage } from './components/PlansPage';
 import { useEffect, useState } from 'react';
 import { LandingPage } from './components/LandingPage';
@@ -7,6 +8,11 @@ import { Dashboard } from './components/Dashboard';
 export default function App() {
   const [screen, setScreen] = useState<'landing' | 'auth' | 'dashboard' | 'plans'>('landing');
   const [user, setUser] = useState<any>(null);
+
+  const handleSubscribe = (planId: 'free' | 'pro' | 'business') => {
+    setPlan(planId);
+    setScreen('dashboard');
+  };
 
   if (screen === 'landing') {
   return (
@@ -18,7 +24,12 @@ export default function App() {
 }
 
 if (screen === 'plans') {
-  return <PlansPage onBack={() => setScreen('landing')} />;
+  return (
+    <PlansPage
+      onBack={() => setScreen('landing')}
+      onSubscribe={handleSubscribe}
+    />
+  );
 }
 
 
