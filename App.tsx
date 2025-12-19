@@ -18,9 +18,6 @@ export default function App() {
   if (screen === 'landing') {
     return (
       <>
-        <div className="fixed bottom-3 left-3 z-[9999] text-xs bg-black/70 text-white px-2 py-1 rounded">
-          screen: {screen}
-        </div>
 
         <LandingPage
           onStart={() => setScreen('auth')}
@@ -33,9 +30,6 @@ export default function App() {
   if (screen === 'plans') {
     return (
       <>
-        <div className="fixed bottom-3 left-3 z-[9999] text-xs bg-black/70 text-white px-2 py-1 rounded">
-          screen: {screen}
-        </div>
 
         <PlansPage
           onBack={() => setScreen('landing')}
