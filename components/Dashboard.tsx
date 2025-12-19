@@ -3,6 +3,8 @@ import { User, PromptCategory, PromptTemplate, FavoritePrompt } from '../types';
 import { PROMPT_TEMPLATES } from '../constants';
 import { LogOut, Film, User as UserIcon, Video, Wand2, Copy, Check, ChevronRight, Sparkles, Globe, Image as ImageIcon, Star, Trash2, Sun, Moon, Cpu } from 'lucide-react';
 import { generateProfessionalPrompt } from '../services/geminiService';
+import { PLANS } from '../lib/plan';
+import { loadUsage } from '../lib/usageStore';
 
 interface DashboardProps {
   user: User;
@@ -42,6 +44,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, isDarkMode
   const [selectedTemplate, setSelectedTemplate] = useState<PromptTemplate | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<FavoritePrompt[]>([]);
+
+  const [usage, setUsage] = useState(() => loadUsage());
+
+  useEffect(() => {
+    setUsage(loadUsage());
+  }, []);
+
+  const plan = PLANS[usage.planId];
+  const remaining = Math.max(0, plan.limit - usage.used);
+
   
   // Form State
   const [formValues, setFormValues] = useState<Record<string, string>>({});
@@ -225,6 +237,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout, isDarkMode
 
       {/* Main Content Area */}
       <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
+        <div className="mb-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 p-4">
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="text-sm text-slate-500 dark:text-white/70">
+        Seu plano atual
+      </p>
+      <p className="text-lg font-semibold text-slate-900 dark:text-white">
+        {plan.name}{' '}
+        <span className="text-sm font-normal text-slate-500 dark:text-white/60">
+          · {plan.limit} prompts/mês
+        </span>
+      </p>
+      <p className="mt-1 text-sm text-slate-500 dark:text-white/70">
+        Usados:{' '}
+        <span className="font-medium text-slate-900 dark:text-white">
+          {usage.used}
+        </span>{' '}
+        · Restantes:{' '}
+        <span className="font-medium text-slate-900 dark:text-white">
+          {remaining}
+        </span>
+      </p>
+    </div>
+  </div>
+</div>
+
         {/* Background blobs for main area */}
          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none opacity-20">
             <div className="absolute top-10 right-10 w-64 h-64 bg-purple-500/30 rounded-full blur-[80px]"></div>
