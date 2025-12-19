@@ -10,9 +10,10 @@ export default function App() {
   const [user, setUser] = useState<any>(null);
 
   const handleSubscribe = (planId: 'free' | 'pro' | 'business') => {
-    setPlan(planId);
-    setScreen('dashboard');
-  };
+  setPlan(planId);
+  setScreen(user ? 'dashboard' : 'auth');
+};
+
 
   if (screen === 'landing') {
     return (
