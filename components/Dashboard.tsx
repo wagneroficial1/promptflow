@@ -73,10 +73,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setUsage(loadUsage());
   }, []);
 
-  const plan = PLANS[usage.planId];
   const remaining = Math.max(0, plan.limit - usage.used);
 
-  
   // Form State
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [targetLanguage, setTargetLanguage] = useState<string>('Português (Brasil)');
