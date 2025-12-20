@@ -58,7 +58,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   subscriptionError,
 }) => {
 
-  const planId = subscription?.plan ?? 'free';
+  const planId = subscription?.plan_id ?? 'free';
   const plan = PLANS[planId];
   const isFree = planId === 'free';
   
