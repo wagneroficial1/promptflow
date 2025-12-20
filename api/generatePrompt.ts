@@ -95,9 +95,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const ai = new GoogleGenAI({ apiKey: geminiKey });
     const response = await ai.models.generateContent({
       model,
-      contents: inputDescription,
-      config: { systemInstruction, temperature: temperature ?? 0.7 },
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: inputDescription }],
+        },
+      ],
+      config: {
+        systemInstruction,
+        temperature: temperature ?? 0.7,
+      },
     });
+
 
     const text = response.text || 'Não foi possível gerar o prompt. Tente novamente.';
 
