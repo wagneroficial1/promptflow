@@ -121,11 +121,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
       targetPlatform
     );
 
-    incrementUsage();
-    setUsage(loadUsage());
-    
-    setGeneratedPrompt(result);
-    setIsGenerating(false);
+// 🔒 BLOQUEIO REAL POR LIMITE
+if (result === 'LIMIT_REACHED') {
+  setIsGenerating(false);
+  setScreen('plans'); // ou onUpgrade()
+  return;
+}
+
+incrementUsage();
+setUsage(loadUsage());
+
+setGeneratedPrompt(result);
+setIsGenerating(false);
+
   };
 
   const handleCopy = (text: string) => {
