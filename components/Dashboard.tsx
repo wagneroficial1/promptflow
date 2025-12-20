@@ -503,7 +503,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
 ) : (
   <button
     onClick={() => {
-      if (isFree) return onUpgrade();
       handleGenerate();
     }}
     disabled={isGenerating || Object.keys(formValues).length === 0}
