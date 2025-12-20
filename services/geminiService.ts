@@ -121,7 +121,7 @@ export const generateProfessionalPrompt = async (
     const text = await generateWithRetry({
       systemInstruction,
       inputDescription,
-      model: GEMINI_MODELS.textPrompt,
+      model: 'gemini-1.5-flash',
       temperature: 0.7,
       maxRetries: 2,
     });
