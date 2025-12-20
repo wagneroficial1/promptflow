@@ -129,8 +129,13 @@ export const generateProfessionalPrompt = async (
     );
 
     return text;
-  } catch (error) {
+  } catch (error: any) {
+    // Se estourou limite, devolve um marcador para o Dashboard reagir (upgrade)
+    if (error?.code === 'LIMIT_REACHED' || error?.payload?.error === 'LIMIT_REACHED') {
+      return 'LIMIT_REACHED';
+    }
+  
     console.error("Erro ao gerar prompt com Gemini:", error);
-    return "Erro ao conectar com a IA. Verifique sua chave de API ou tente novamente mais tarde.";
+    return "Erro ao conectar com a IA. Tente novamente mais tarde.";
   }
 };
