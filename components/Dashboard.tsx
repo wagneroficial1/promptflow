@@ -111,7 +111,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleGenerate = async () => {
   console.log('HANDLE GENERATE DISPAROU');
-    if (!selectedTemplate) return;
+    if (!selectedTemplate) {
+  alert('Selecione um template antes de gerar.');
+  return;
+}
     setIsGenerating(true);
     setGeneratedPrompt(''); // Clear previous
     
