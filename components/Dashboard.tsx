@@ -124,9 +124,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 // 🔒 BLOQUEIO REAL POR LIMITE
 if (result === 'LIMIT_REACHED') {
   setIsGenerating(false);
-  setScreen('plans'); // ou onUpgrade()
+  onUpgrade?.();
   return;
 }
+
 
 incrementUsage();
 setUsage(loadUsage());
