@@ -129,11 +129,14 @@ if (result === 'LIMIT_REACHED' && remaining === 0) {
 }
 
 
-incrementUsage();
-setUsage(loadUsage());
+if (typeof result === 'string' && result !== 'LIMIT_REACHED') {
+  incrementUsage();
+  setUsage(loadUsage());
+  setGeneratedPrompt(result);
+}
 
-setGeneratedPrompt(result);
 setIsGenerating(false);
+
 
   };
 
