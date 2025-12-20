@@ -118,15 +118,13 @@ export const generateProfessionalPrompt = async (
 
   try {
     // ✅ Enfileira (queue) + aplica retry inteligente para 429
-    const text = await enqueue(() =>
-      generateWithRetry({
-        systemInstruction,
-        inputDescription,
-        model: GEMINI_MODELS.textPrompt,
-        temperature: 0.7,
-        maxRetries: 2, // 2 retries = até 3 tentativas no total
-      })
-    );
+    const text = await generateWithRetry({
+      systemInstruction,
+      inputDescription,
+      model: GEMINI_MODELS.textPrompt,
+      temperature: 0.7,
+      maxRetries: 2,
+    });
 
     return text;
   } catch (error: any) {
