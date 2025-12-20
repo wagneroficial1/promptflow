@@ -1,6 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
-import { GEMINI_MODELS } from "./geminiModels";
-import { enqueue } from "./requestQueue";
+// NÃO USAR MAIS — Gemini agora é chamado no backend (/api/generatePrompt)
+// import { GoogleGenAI } from "@google/genai";
+
+// const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+// const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -18,10 +21,6 @@ function isRateLimitError(err: unknown): boolean {
   return status === 429 || message.includes("429") || message.includes("rate");
 }
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
-
-// Retry inteligente só para 429 (1–3s + tentativas limitadas)
 async function generateWithRetry(params: {
   systemInstruction: string;
   inputDescription: string;
@@ -41,28 +40,40 @@ async function generateWithRetry(params: {
 
   while (true) {
     try {
-      if (!ai) {
-        return "Configuração incompleta: defina a variável VITE_GEMINI_API_KEY na Vercel para ativar a geração de prompts.";
-      }
+      // Pega o token do usuário logado (ajuste para o seu app)
+      const token = localStorage.getItem('sb_token') || localStorage.getItem('supabase.auth.token');
 
-      const response = await ai.models.generateContent({
-        model,
-        contents: inputDescription,
-        config: {
-          systemInstruction,
-          temperature,
+      const res = await fetch('/api/generatePrompt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
+        body: JSON.stringify({
+          systemInstruction,
+          inputDescription,
+          model,
+          temperature,
+        }),
       });
 
-      return response.text || "Não foi possível gerar o prompt. Tente novamente.";
+      const data = await res.json();
+
+      // Limite atingido -> propaga erro específico
+      if (!res.ok) {
+        const err: any = new Error(data?.message || 'Erro ao gerar prompt');
+        err.code = data?.error;
+        err.status = res.status;
+        err.payload = data;
+        throw err;
+      }
+
+      return data.text || "Não foi possível gerar o prompt. Tente novamente.";
     } catch (error) {
-      // Só faz retry para 429
       if (isRateLimitError(error) && attempt < maxRetries) {
         attempt++;
         const waitMs = randomInt(1000, 3000);
-        console.warn(
-          `[Gemini] 429 detectado. Retry ${attempt}/${maxRetries} em ${waitMs}ms`
-        );
+        console.warn(`[PromptFlow] 429 detectado. Retry ${attempt}/${maxRetries} em ${waitMs}ms`);
         await sleep(waitMs);
         continue;
       }
@@ -71,6 +82,7 @@ async function generateWithRetry(params: {
     }
   }
 }
+
 
 export const generateProfessionalPrompt = async (
   systemInstruction: string,
