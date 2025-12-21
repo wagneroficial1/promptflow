@@ -110,9 +110,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleGenerate = async () => {
-    if (!selectedTemplate) return;
-    setIsGenerating(true);
-    setGeneratedPrompt(''); // Clear previous
+  if (!selectedTemplate) return;
+
+  const token = user.accessToken;
+  const r = await fetch('/api/plan-guard', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const j = await r.json();
+  if (!j.allowed) return;
+
+  setIsGenerating(true);
+  setGeneratedPrompt(''); // Clear previous
+
     
     const result = await generateProfessionalPrompt(
       selectedTemplate.systemInstruction, 
