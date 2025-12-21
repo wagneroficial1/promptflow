@@ -20,7 +20,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .select('plan_id,status')
     .maybeSingle();
 
-  // Regra simples por enquanto: sempre permite
-  // (vamos endurecer depois, passo a passo)
-  return res.status(200).json({ allowed: true, plan: data?.plan_id ?? 'free' });
+  const PLAN_LIMITS: Record<string, number> = {
+  free: 5,
+  pro: 600,
+  business: 1200,
+};
+
+const planId = data?.plan_id ?? 'free';
+const limit = PLAN_LIMITS[planId] ?? 5;
+
+// uso atual vem do frontend por enquanto
+const used = Number(req.headers['x-usage-used'] ?? 0);
+
+if (used >= limit) {
+  return res.status(200).json({
+    allowed: false,
+    reason: 'LIMIT_REACHED',
+    plan: planId,
+    limit,
+    used,
+  });
+}
+
+return res.status(200).json({
+  allowed: true,
+  plan: planId,
+  limit,
+  used,
+});
+
 }
