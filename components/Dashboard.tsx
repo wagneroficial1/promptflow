@@ -106,7 +106,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleGenerate = async () => {
-  console.log('HANDLE GENERATE CLICADO', { selectedTemplate });
   if (!selectedTemplate) return;
     
   setIsGenerating(true);
