@@ -15,10 +15,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(405).json({ allowed: false, error: 'Method not allowed' });
     }
 
+    // 1) ENV
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // ✅ É AQUI que entra a checagem (no plan-guard, é SERVICE_ROLE_KEY)
+    // ✅ A checagem que você perguntou fica EXATAMENTE aqui
     if (!supabaseUrl || !supabaseServiceKey) {
       return res.status(500).json({
         allowed: false,
@@ -26,6 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    // 2) TOKEN
     const authHeader = req.headers.authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
@@ -33,12 +35,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ allowed: false, error: 'Missing Authorization Bearer token' });
     }
 
-    // ✅ Aqui é o client correto (service role) — sem usar supabaseAnonKey
+    // 3) Supabase client (SERVICE ROLE)
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { persistSession: false },
     });
 
-    // ✅ valida token e pega user
+    // 4) Validar o token e pegar userId
     const { data: userData, error: userErr } = await supabase.auth.getUser(token);
     if (userErr || !userData?.user) {
       return res.status(401).json({ allowed: false, error: 'Invalid token' });
@@ -46,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const userId = userData.user.id;
 
-    // plano do usuário (se não tiver, assume free)
+    // 5) Plano do usuário (se não existir, assume free)
     const { data: sub, error: subErr } = await supabase
       .from('subscriptions')
       .select('plan_id, status')
@@ -57,11 +59,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ allowed: false, error: subErr.message });
     }
 
-    const planId = (sub?.plan_id as 'free' | 'pro' | 'business') || 'free';
-    const limit = LIMITS[planId] ?? LIMITS.free;
+    const plan_id = sub?.plan_id ?? 'free';
+    const status = sub?.status ?? 'active';
 
-    // contagem mensal via RPC
-    const { data: usedRaw, error: usedErr } = await supabase.rpc('count_usage_current_month_v2', {
+    const limit = LIMITS[plan_id] ?? LIMITS.free;
+
+    // 6) Contagem mensal via RPC
+    const { data: usedData, error: usedErr } = await supabase.rpc('count_usage_current_month_v2', {
       p_user_id: userId,
     });
 
@@ -69,13 +73,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ allowed: false, error: usedErr.message });
     }
 
-    const used = Number(usedRaw ?? 0);
-    const allowed = used < limit;
+    const used = Number(usedData ?? 0);
+
+    const allowed = status === 'active' && used < limit;
 
     return res.status(200).json({
       allowed,
       reason: allowed ? null : 'LIMIT_REACHED',
-      plan: planId,
+      plan: plan_id,
+      status,
       limit,
       used,
     });
