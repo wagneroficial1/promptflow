@@ -8,18 +8,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') return res.status(405).json({ allowed: false });
 
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return res.status(500).json({ allowed: false, error: 'Missing SUPABASE_URL or SUPABASE_ANON_KEY' });
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(500).json({ allowed: false, error: 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY' });
     }
+
 
     const authHeader = req.headers.authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
     if (!token) return res.status(401).json({ allowed: false, error: 'Missing Authorization Bearer token' });
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false },
     });
+
 
     // 1) Descobre o userId pelo JWT
     const { data: userData, error: userErr } = await supabase.auth.getUser(token);
