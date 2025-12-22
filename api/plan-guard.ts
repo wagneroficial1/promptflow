@@ -18,9 +18,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
     if (!token) return res.status(401).json({ allowed: false, error: 'Missing Authorization Bearer token' });
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { persistSession: false },
-    });
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  global: {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  },
+});
+
 
 
     // 1) Descobre o userId pelo JWT
