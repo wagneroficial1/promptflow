@@ -113,6 +113,38 @@ export const Dashboard: React.FC<DashboardProps> = ({
     if (!selectedTemplate) return;
     setIsGenerating(true);
     setGeneratedPrompt(''); // Clear previous
+
+        // 1) Checar backend (/api/plan-guard) antes de gerar
+    try {
+      const token = (user as any)?.accessToken;
+
+      if (!token) {
+        console.warn('[PLAN_GUARD] Sem accessToken no user. Não vou bloquear por enquanto.');
+      } else {
+        const resp = await fetch('/api/plan-guard', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await resp.json().catch(() => null);
+
+        console.log('[PLAN_GUARD]', resp.status, data);
+
+        if (!resp.ok) {
+          console.warn('[PLAN_GUARD] Erro no endpoint. Não vou bloquear por enquanto.');
+        } else if (data?.allowed === false) {
+          // BLOQUEIA aqui
+          onUpgrade?.(); // manda pra página de planos
+          setIsGenerating(false);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('[PLAN_GUARD] Falhou a chamada. Não vou bloquear por enquanto.', e);
+    }
+
     
     const result = await generateProfessionalPrompt(
       selectedTemplate.systemInstruction, 
