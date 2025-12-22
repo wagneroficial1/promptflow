@@ -15,19 +15,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(405).json({ allowed: false, error: 'Method not allowed' });
     }
 
-    // 1) ENV
     const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // ✅ A checagem que você perguntou fica EXATAMENTE aqui
-    if (!supabaseUrl || !supabaseServiceKey) {
+    if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
       return res.status(500).json({
         allowed: false,
-        error: 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY',
+        error: 'Missing SUPABASE_URL or SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY',
       });
     }
 
-    // 2) TOKEN
     const authHeader = req.headers.authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
@@ -35,21 +33,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ allowed: false, error: 'Missing Authorization Bearer token' });
     }
 
-    // 3) Supabase client (SERVICE ROLE)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    // 1) Valida o JWT com ANON + Bearer (RLS)
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
       auth: { persistSession: false },
     });
 
-    // 4) Validar o token e pegar userId
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+    const { data: userData, error: userErr } = await supabaseAuth.auth.getUser(token);
     if (userErr || !userData?.user) {
       return res.status(401).json({ allowed: false, error: 'Invalid token' });
     }
 
     const userId = userData.user.id;
 
-    // 5) Plano do usuário (se não existir, assume free)
-    const { data: sub, error: subErr } = await supabase
+    // 2) Usa SERVICE ROLE para ler plano + contar uso (sem depender de RLS)
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false },
+    });
+
+    const { data: sub, error: subErr } = await supabaseAdmin
       .from('subscriptions')
       .select('plan_id, status')
       .eq('user_id', userId)
@@ -59,28 +61,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ allowed: false, error: subErr.message });
     }
 
-    const plan_id = sub?.plan_id ?? 'free';
-    const status = sub?.status ?? 'active';
+    const planId = (sub?.plan_id as string) || 'free';
+    const status = (sub?.status as string) || 'active';
+    const limit = LIMITS[planId] ?? LIMITS.free;
 
-    const limit = LIMITS[plan_id] ?? LIMITS.free;
+    // Se quiser bloquear quando status não for active:
+    if (status !== 'active') {
+      return res.status(200).json({
+        allowed: false,
+        reason: 'INACTIVE_SUBSCRIPTION',
+        plan: planId,
+        status,
+        limit,
+        used: 0,
+      });
+    }
 
-    // 6) Contagem mensal via RPC
-    const { data: usedData, error: usedErr } = await supabase.rpc('count_usage_current_month_v2', {
-      p_user_id: userId,
-    });
+    const { data: usedData, error: usedErr } = await supabaseAdmin.rpc(
+      'count_usage_current_month_v2',
+      { p_user_id: userId }
+    );
 
     if (usedErr) {
       return res.status(500).json({ allowed: false, error: usedErr.message });
     }
 
     const used = Number(usedData ?? 0);
-
-    const allowed = status === 'active' && used < limit;
+    const allowed = used < limit;
 
     return res.status(200).json({
       allowed,
-      reason: allowed ? null : 'LIMIT_REACHED',
-      plan: plan_id,
+      reason: allowed ? 'OK' : 'LIMIT_REACHED',
+      plan: planId,
       status,
       limit,
       used,
