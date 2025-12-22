@@ -1,3 +1,4 @@
+import { supabase } from '../services/supabaseClient'; // ajuste o caminho conforme seu projeto
 import React, { useState, useEffect } from 'react';
 import { User, PromptCategory, PromptTemplate, FavoritePrompt } from '../types';
 import { PROMPT_TEMPLATES } from '../constants';
@@ -116,7 +117,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         // 1) Checar backend (/api/plan-guard) antes de gerar
     try {
-      const token = (user as any)?.accessToken;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+
 
       if (!token) {
         console.warn('[PLAN_GUARD] Sem accessToken no user. Não vou bloquear por enquanto.');
