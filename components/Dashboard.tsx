@@ -67,8 +67,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<FavoritePrompt[]>([]);
 
-  const [usage, setUsage] = useState(() => loadUsage());
-
   useEffect(() => {
     setUsage(loadUsage());
   }, []);
