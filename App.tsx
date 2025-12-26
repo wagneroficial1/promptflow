@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { fetchSubscription, type SubscriptionPayload } from './services/subscription';
-import { setPlan } from './lib/usageStore';
 
 import { PlansPage } from './components/PlansPage';
 import { LandingPage } from './components/LandingPage';
