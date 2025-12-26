@@ -147,16 +147,50 @@ export const Dashboard: React.FC<DashboardProps> = ({
       console.warn('[PLAN_GUARD] Falhou a chamada. Não vou bloquear por enquanto.', e);
     }
 
-    
-    const result = await generateProfessionalPrompt(
-      selectedTemplate.systemInstruction, 
-      formValues,
-      targetLanguage,
-      targetPlatform
-    );
-    
-    setGeneratedPrompt(result);
-    setIsGenerating(false);
+    // requestId único por tentativa de geração (1 clique = 1 requestId)
+const requestId =
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+// (garanta que "token" está definido ANTES, fora do try do plan-guard)
+// Ex: const token = sessionData?.session?.access_token;
+
+try {
+  const result = await generateProfessionalPrompt(
+    selectedTemplate.systemInstruction,
+    formValues,
+    targetLanguage,
+    targetPlatform
+  );
+
+  setGeneratedPrompt(result);
+
+  // Registrar uso real no backend (1 geração com sucesso = 1 insert)
+  if (token) {
+    try {
+      const resp = await fetch('/api/log-usage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ request_id: requestId }),
+      });
+
+      const data = await resp.json().catch(() => null);
+      console.log('[LOG_USAGE]', resp.status, data);
+    } catch (e) {
+      console.warn('[LOG_USAGE] Falha ao registrar uso', e);
+    }
+  }
+} catch (e) {
+  console.error('[GENERATE] Erro ao gerar prompt', e);
+  setGeneratedPrompt('Ocorreu um erro ao gerar o prompt. Tente novamente.');
+} finally {
+  setIsGenerating(false);
+}
+
   };
 
   const handleCopy = (text: string) => {
