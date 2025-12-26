@@ -1,32 +1,48 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
-function getBearerToken(req: any) {
-  const h = req.headers?.authorization || req.headers?.Authorization;
+function getBearerToken(req: VercelRequest) {
+  const h = req.headers.authorization || (req.headers as any).Authorization;
   const raw = Array.isArray(h) ? h[0] : h;
   if (!raw) return null;
-  const [type, token] = String(raw).split(" ");
+  const [type, token] = raw.split(" ");
   if (type?.toLowerCase() !== "bearer" || !token) return null;
   return token;
 }
 
-function getRequestId(req: any): string | null {
-  // Vercel pode entregar body como objeto ou string
-  const body = req.body;
-  if (!body) return null;
+// Lê e parseia JSON do body de forma resiliente (req.body pode vir string/objeto/undefined)
+async function readJsonBody(req: VercelRequest): Promise<any> {
+  // 1) se já veio parseado
+  if (req.body && typeof req.body === "object") return req.body;
 
-  if (typeof body === "string") {
+  // 2) se veio como string
+  if (typeof req.body === "string") {
     try {
-      const parsed = JSON.parse(body);
-      return typeof parsed?.request_id === "string" ? parsed.request_id : null;
+      return JSON.parse(req.body);
     } catch {
       return null;
     }
   }
 
-  return typeof body?.request_id === "string" ? body.request_id : null;
+  // 3) fallback: ler stream
+  const chunks: Buffer[] = [];
+  await new Promise<void>((resolve, reject) => {
+    req.on("data", (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
+    req.on("end", () => resolve());
+    req.on("error", reject);
+  });
+
+  if (chunks.length === 0) return null;
+
+  const raw = Buffer.concat(chunks).toString("utf-8");
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -44,11 +60,6 @@ export default async function handler(req: any, res: any) {
     return res.status(401).json({ error: "Missing Bearer token" });
   }
 
-  const requestId = getRequestId(req);
-  if (!requestId) {
-    return res.status(400).json({ error: "Missing request_id" });
-  }
-
   // 1) valida o token e pega o user_id
   const supabaseAuth = createClient(url, anon, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -62,7 +73,17 @@ export default async function handler(req: any, res: any) {
 
   const userId = userData.user.id;
 
-  // 2) grava 1 uso no mês (idempotente por request_id)
+  // 2) lê request_id do body
+  const body = await readJsonBody(req);
+  const requestId = typeof body?.request_id === "string" && body.request_id.trim()
+    ? body.request_id.trim()
+    : null;
+
+  if (!requestId) {
+    return res.status(400).json({ error: "Missing request_id" });
+  }
+
+  // 3) grava 1 uso (1 requestId = 1 insert) usando service role
   const supabaseAdmin = createClient(url, serviceRole, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
@@ -71,16 +92,14 @@ export default async function handler(req: any, res: any) {
     .from("prompt_usage")
     .insert({ user_id: userId, request_id: requestId });
 
+  // Se bater no unique index (mesmo user_id + request_id), tratamos como "ok" (idempotência)
   if (insErr) {
-    // Duplicate key (unique violation) => já foi registrado, não duplica
-    const anyErr = insErr as any;
-    const code = anyErr?.code; // PostgREST geralmente traz "23505"
+    const code = (insErr as any).code;
     if (code === "23505") {
-      return res.status(200).json({ ok: true, duplicate: true });
+      return res.status(200).json({ ok: true, deduped: true });
     }
-
     return res.status(500).json({ error: "Insert failed", details: insErr.message });
   }
 
-  return res.status(200).json({ ok: true, inserted: true });
+  return res.status(200).json({ ok: true, request_id: requestId });
 }
