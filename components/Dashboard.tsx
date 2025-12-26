@@ -111,9 +111,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setIsGenerating(true);
     setGeneratedPrompt(''); // Clear previous
 
-    const requestId = crypto.randomUUID();
-
-
         // 1) Checar backend (/api/plan-guard) antes de gerar
     try {
       const { data: sessionData } = await supabase.auth.getSession();
