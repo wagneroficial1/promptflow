@@ -5,7 +5,6 @@ import { PROMPT_TEMPLATES } from '../constants';
 import { LogOut, Film, User as UserIcon, Video, Wand2, Copy, Check, ChevronRight, Sparkles, Globe, Image as ImageIcon, Star, Trash2, Sun, Moon, Cpu } from 'lucide-react';
 import { generateProfessionalPrompt } from '../services/geminiService';
 import { PLANS } from '../lib/plan';
-import { incrementUsage } from '../lib/usageStore';
 import type { SubscriptionPayload } from '../services/subscription';
 
 interface DashboardProps {
@@ -152,9 +151,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
       targetLanguage,
       targetPlatform
     );
-
-    incrementUsage();
-    setUsage(loadUsage());
     
     setGeneratedPrompt(result);
     setIsGenerating(false);
