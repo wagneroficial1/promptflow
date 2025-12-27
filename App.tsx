@@ -54,13 +54,15 @@ export default function App() {
     const result = await fetchSubscription();
 
     if (result.ok && result.data) {
-      setSubscription(result.data);
-      setPlan(result.data.plan);
-    } else {
-      setSubscription(null);
-      setPlan('free');
-      setSubscriptionError(result.error ?? 'Erro ao consultar assinatura');
-    }
+  setSubscription(result.data);
+
+  console.log('SUBSCRIPTION OK:', JSON.stringify(result.data, null, 2));
+} else {
+  setSubscription(null);
+
+  console.log('SUBSCRIPTION ERROR:', result.error);
+  setSubscriptionError(result.error ?? 'Erro ao consultar assinatura');
+}
 
     setLoadingSubscription(false);
   }
