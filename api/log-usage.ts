@@ -75,9 +75,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // 2) lê request_id do body
   const body = await readJsonBody(req);
-  const requestId = typeof body?.request_id === "string" && body.request_id.trim()
-    ? body.request_id.trim()
-    : null;
+  const rawRequestId =
+  (typeof body?.request_id === "string" ? body.request_id : null) ??
+  (typeof body?.requestId === "string" ? body.requestId : null);
+
+const requestId = rawRequestId && rawRequestId.trim() ? rawRequestId.trim() : null;
 
   if (!requestId) {
     return res.status(400).json({ error: "Missing request_id" });
