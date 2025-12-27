@@ -151,7 +151,8 @@ const { data: sessionData } = await supabase.auth.getSession();
 const token = sessionData?.session?.access_token;
 
 if (!token) {
-  // Sem token = não deveria gerar (usuário não está autenticado de verdade)
+  console.warn('[AUTH] Sem token. Sessão expirou ou usuário não está autenticado.');
+  setGeneratedPrompt('Sua sessão expirou. Faça login novamente para gerar prompts.');
   setIsGenerating(false);
   return;
 }
