@@ -34,18 +34,18 @@ export default function App() {
 
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      sub?.subscription?.unsubscribe();
     };
   }, []);
 
-const [subscription, setSubscription] = useState<SubscriptionPayload | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionPayload | null>(null);
   const [loadingSubscription, setLoadingSubscription] = useState(false);
   const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
 
-  // 🔒 Impede render antes da sessão estar pronta
-  if (!authReady) {
-    return null;
-  }
+  // 🔒 Agora sim: impede render de telas antes da sessão estar pronta (sem quebrar hooks)
+    if (!authReady) {
+      return <div className="min-h-screen bg-[#05050a]" />;
+    }
 
   async function refreshSubscription() {
     setLoadingSubscription(true);
