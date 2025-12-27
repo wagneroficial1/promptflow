@@ -70,11 +70,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
 const [used, setUsed] = useState<number>(0);
 
 useEffect(() => {
+  let cancelled = false;
+
   (async () => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
-      if (!token) return;
+
+      // Se não tiver token, zera o "used" (sem fonte da verdade, não inventa número)
+      if (!token) {
+        if (!cancelled) setUsed(0);
+        return;
+      }
 
       const resp = await fetch('/api/plan-guard', {
         method: 'GET',
@@ -82,13 +89,19 @@ useEffect(() => {
       });
 
       const data = await resp.json().catch(() => null);
-      if (resp.ok && typeof data?.used === 'number') {
+
+      if (!cancelled && resp.ok && typeof data?.used === 'number') {
         setUsed(data.used);
       }
     } catch (e) {
       console.warn('[PLAN_GUARD] Falha ao carregar uso inicial', e);
+      if (!cancelled) setUsed(0);
     }
   })();
+
+  return () => {
+    cancelled = true;
+  };
 }, [planId]);
 
 
