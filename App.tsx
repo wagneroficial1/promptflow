@@ -38,14 +38,14 @@ export default function App() {
     };
   }, []);
 
+const [subscription, setSubscription] = useState<SubscriptionPayload | null>(null);
+  const [loadingSubscription, setLoadingSubscription] = useState(false);
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
+
   // 🔒 Impede render antes da sessão estar pronta
   if (!authReady) {
     return null;
   }
-
-  const [subscription, setSubscription] = useState<SubscriptionPayload | null>(null);
-  const [loadingSubscription, setLoadingSubscription] = useState(false);
-  const [subscriptionError, setSubscriptionError] = useState<string | null>(null);
 
   async function refreshSubscription() {
     setLoadingSubscription(true);
