@@ -66,11 +66,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<FavoritePrompt[]>([]);
 
-  useEffect(() => {
-    setUsage(loadUsage());
-  }, []);
+  // Uso real vindo do backend (fonte da verdade)
+const [used, setUsed] = useState<number>(0);
 
-  const remaining = Math.max(0, plan.limit - usage.used);
+useEffect(() => {
+  (async () => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) return;
+
+      const resp = await fetch('/api/plan-guard', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await resp.json().catch(() => null);
+      if (resp.ok && typeof data?.used === 'number') {
+        setUsed(data.used);
+      }
+    } catch (e) {
+      console.warn('[PLAN_GUARD] Falha ao carregar uso inicial', e);
+    }
+  })();
+}, [planId]);
+
+
+  const remaining = Math.max(0, plan.limit - used);
 
   // Form State
   const [formValues, setFormValues] = useState<Record<string, string>>({});
@@ -111,38 +133,42 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setIsGenerating(true);
     setGeneratedPrompt(''); // Clear previous
 
-        // 1) Checar backend (/api/plan-guard) antes de gerar
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData?.session?.access_token;
+        // 1) Pegar token (uma vez) e checar backend (/api/plan-guard) antes de gerar
+const { data: sessionData } = await supabase.auth.getSession();
+const token = sessionData?.session?.access_token;
 
+if (!token) {
+  // Sem token = não deveria gerar (usuário não está autenticado de verdade)
+  setIsGenerating(false);
+  return;
+}
 
-      if (!token) {
-        console.warn('[PLAN_GUARD] Sem accessToken no user. Não vou bloquear por enquanto.');
-      } else {
-        const resp = await fetch('/api/plan-guard', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+try {
+  const resp = await fetch('/api/plan-guard', {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
-        const data = await resp.json().catch(() => null);
+  const data = await resp.json().catch(() => null);
+  console.log('[PLAN_GUARD]', resp.status, data);
 
-        console.log('[PLAN_GUARD]', resp.status, data);
+  if (!resp.ok) {
+    // Se o guard falhou, não vamos gerar para evitar uso sem controle
+    setIsGenerating(false);
+    return;
+  }
 
-        if (!resp.ok) {
-          console.warn('[PLAN_GUARD] Erro no endpoint. Não vou bloquear por enquanto.');
-        } else if (data?.allowed === false) {
-          // BLOQUEIA aqui
-          onUpgrade?.(); // manda pra página de planos
-          setIsGenerating(false);
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('[PLAN_GUARD] Falhou a chamada. Não vou bloquear por enquanto.', e);
-    }
+  if (data?.allowed === false) {
+    onUpgrade?.();
+    setIsGenerating(false);
+    return;
+  }
+} catch (e) {
+  console.warn('[PLAN_GUARD] Falha ao validar plano', e);
+  setIsGenerating(false);
+  return;
+}
+
 
     // requestId único por tentativa de geração (1 clique = 1 requestId)
 const requestId =
@@ -337,7 +363,7 @@ try {
       <p className="mt-1 text-sm text-slate-500 dark:text-white/70">
         Usados:{' '}
         <span className="font-medium text-slate-900 dark:text-white">
-          {usage.used}
+          {used}
         </span>{' '}
         · Restantes:{' '}
         <span className="font-medium text-slate-900 dark:text-white">
