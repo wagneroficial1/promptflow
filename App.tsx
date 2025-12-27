@@ -157,12 +157,14 @@ async function refreshSubscription() {
           subscription={subscription}
           loadingSubscription={loadingSubscription}
           subscriptionError={subscriptionError}
-          onLogout={() => {
+          onLogout={async () => {
+            await supabase.auth.signOut(); // encerra a sessão real no Supabase
             setUser(null);
             setScreen('landing');
           }}
           onUpgrade={() => setScreen('plans')}
         />
+
 
     </>
   );
