@@ -97,7 +97,13 @@ export const generateProfessionalPrompt = async (
   userInputs: Record<string, string>,
   targetLanguage: string = "Português (Brasil)",
   targetPlatform: string = "ChatGPT"
-): Promise<string> => {
+): Promise<{
+  text?: string;
+  error?: 'LIMIT_REACHED' | 'GENERIC_ERROR';
+  used?: number;
+  remaining?: number;
+  limit?: number;
+}> => {
   let inputDescription =
     "Aqui estão os dados fornecidos pelo usuário para criar o prompt:\n";
 
@@ -105,7 +111,48 @@ export const generateProfessionalPrompt = async (
     inputDescription += `- ${key}: ${value}\n`;
   }
 
-  inputDescription += `\nCom base nisso, gere o Prompt final otimizado.
+  inputDescription += `\nCom base nisso, gere o Prompt final otimizado.`;
+
+  try {
+    const res = await fetch('/api/generatePrompt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        systemInstruction,
+        inputDescription,
+        targetLanguage,
+        targetPlatform,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data?.error === 'LIMIT_REACHED') {
+        return {
+          error: 'LIMIT_REACHED',
+          used: data.used,
+          remaining: data.remaining,
+          limit: data.limit,
+        };
+      }
+
+      return { error: 'GENERIC_ERROR' };
+    }
+
+    return {
+      text: data.text,
+      used: data.used,
+      remaining: data.remaining,
+      limit: data.limit,
+    };
+  } catch {
+    return { error: 'GENERIC_ERROR' };
+  }
+};
+
   
   DIRETRIZES CRÍTICAS DE GERAÇÃO:
   1. O Prompt em si deve ser escrito em INGLÊS (English), pois funciona melhor na maioria das IAs, exceto se a plataforma especificada preferir outro idioma nativamente.
