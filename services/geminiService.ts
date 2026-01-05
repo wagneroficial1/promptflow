@@ -46,7 +46,7 @@ async function generateWithRetry(params: {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
 
-      console.log('TOKEN?', token?.slice(0, 20) || 'NULL');
+      console.log('[DEBUG] access_token:', token);
 
       const res = await fetch('/api/generatePrompt', {
         method: 'POST',
