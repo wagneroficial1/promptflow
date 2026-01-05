@@ -1,5 +1,4 @@
-import { supabase } from './supabaseClient'; // ou o caminho correto do seu client
-
+import { supabase } from './supabaseClient';
 
 // NÃO USAR MAIS — Gemini agora é chamado no backend (/api/generatePrompt)
 // import { GoogleGenAI } from "@google/genai";
@@ -47,6 +46,7 @@ async function generateWithRetry(params: {
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
 
+      console.log('TOKEN?', token?.slice(0, 20) || 'NULL');
 
       const res = await fetch('/api/generatePrompt', {
         method: 'POST',
