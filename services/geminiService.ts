@@ -1,3 +1,5 @@
+import { supabase } from './supabaseClient';
+
 // NÃO USAR MAIS — Gemini agora é chamado no backend (/api/generatePrompt)
 // import { GoogleGenAI } from "@google/genai";
 
@@ -41,9 +43,12 @@ async function generateWithRetry(params: {
   while (true) {
     try {
       // Pega o token do usuário logado
-      const sessionRaw = localStorage.getItem('sb-mzyumkehycctfzsbzgzo-auth-token');
-      const session = sessionRaw ? JSON.parse(sessionRaw) : null;
+      const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
+      
+      if (!token) {
+        return { error: 'UNAUTHORIZED' };
+      }
 
       const res = await fetch('/api/generatePrompt', {
       method: 'POST',
