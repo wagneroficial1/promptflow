@@ -73,10 +73,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 
   useEffect(() => {
-  const u = loadUsage();
-  console.log('[PromptFlow][Dashboard] loadUsage():', u);
-  setUsage(u);
-}, []);
+    const u = loadUsage(user.id);
+    console.log('[PromptFlow][Dashboard] loadUsage():', u);
+    setUsage({ used: u.used });
+  }, [user.id]);
 
   const remaining = Math.max(0, (plan.limit ?? 0) - (usage.used ?? 0));
 
