@@ -1,3 +1,4 @@
+import { supabase } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
 import { User, PromptCategory, PromptTemplate, FavoritePrompt } from '../types';
 import { PROMPT_TEMPLATES } from '../constants';
@@ -116,9 +117,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   // 🔒 GARANTIR QUE A SESSÃO JÁ EXISTE
   const { data } = await supabase.auth.getSession();
-
   if (!data?.session?.access_token) {
     alert('Sessão ainda não carregada. Recarregue a página.');
+    setIsGenerating(false);
+    return;
+  }
+
+  if (!selectedTemplate) {
+    alert('Selecione um template antes de gerar.');
     setIsGenerating(false);
     return;
   }
@@ -130,49 +136,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
     targetPlatform
   );
 
-  // 🔒 BLOQUEIO REAL POR LIMITE (backend)
   if (result === 'LIMIT_REACHED') {
     setIsGenerating(false);
     return;
   }
 
-  if (typeof result === 'string') {
-    incrementUsage();
-    setUsage(loadUsage());
-    setGeneratedPrompt(result);
-  }
+  incrementUsage();
+  setUsage(loadUsage());
+  setGeneratedPrompt(result);
 
   setIsGenerating(false);
 };
 
-    
-    const result = await generateProfessionalPrompt(
-      selectedTemplate.systemInstruction, 
-      formValues,
-      targetLanguage,
-      targetPlatform
-    );
-
-// 🔒 BLOQUEIO REAL POR LIMITE (fonte da verdade = backend)
-if (result === 'LIMIT_REACHED') {
-  setIsGenerating(false);
-
-  // força a UI a refletir o bloqueio do backend
-  setUsage({ used: plan.limit });
-
-  return;
-}
-
-
-
-if (typeof result === 'string' && result !== 'LIMIT_REACHED') {
-  setGeneratedPrompt(result);
-}
-
-setIsGenerating(false);
-
-
-  };
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
