@@ -6,7 +6,12 @@ type UsageState = {
   used: number;
 };
 
-const KEY = 'promptflow:usage:v1';
+const BASE_KEY = 'promptflow:usage:v1';
+
+function getUsageKey(userId: string) {
+  return `${BASE_KEY}:${userId}`;
+}
+
 
 export function loadUsage(): UsageState {
   const monthKey = getMonthKey();
