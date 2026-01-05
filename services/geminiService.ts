@@ -46,18 +46,24 @@ async function generateWithRetry(params: {
       const token = session?.access_token;
 
       const res = await fetch('/api/generatePrompt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          systemInstruction,
-          inputDescription,
-          model,
-          temperature,
-        }),
-      });
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        systemInstruction,
+        inputDescription,
+        model,
+        temperature,
+      }),
+    });
+    
+    console.log('[PromptFlow][generateWithRetry]', {
+      status: res.status,
+      ok: res.ok,
+    });
+
 
       const data = await res.json();
 
