@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchSubscription, type SubscriptionPayload } from './services/subscription';
 import { setPlan } from './lib/usageStore';
+import { supabase } from './services/supabaseClient';
 
 import { PlansPage } from './components/PlansPage';
 import { LandingPage } from './components/LandingPage';
@@ -39,6 +40,57 @@ async function refreshSubscription() {
 
   setLoadingSubscription(false);
 }
+
+    // ✅ Mantém logado após F5 (restaura sessão do Supabase)
+  useEffect(() => {
+    let isMounted = true;
+
+    async function restoreSession() {
+      const { data, error } = await supabase.auth.getSession();
+      if (!isMounted) return;
+
+      const session = data?.session;
+
+      if (error) {
+        console.log('RESTORE SESSION ERROR:', error.message);
+      }
+
+      if (session?.user) {
+        setUser({
+          email: session.user.email ?? 'Usuário',
+          name:
+            (session.user.user_metadata?.name as string | undefined) ??
+            (session.user.email ? session.user.email.split('@')[0] : 'Usuário'),
+        });
+
+        // Se já existe sessão, vai direto pro dashboard
+        setScreen('dashboard');
+      }
+    }
+
+    restoreSession();
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+
+      if (session?.user) {
+        setUser({
+          email: session.user.email ?? 'Usuário',
+          name:
+            (session.user.user_metadata?.name as string | undefined) ??
+            (session.user.email ? session.user.email.split('@')[0] : 'Usuário'),
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
 
   useEffect(() => {
   if (screen === 'dashboard') {
@@ -105,12 +157,14 @@ async function refreshSubscription() {
           subscription={subscription}
           loadingSubscription={loadingSubscription}
           subscriptionError={subscriptionError}
-          onLogout={() => {
+          onLogout={async () => {
+            await supabase.auth.signOut(); // encerra a sessão real no Supabase
             setUser(null);
             setScreen('landing');
           }}
           onUpgrade={() => setScreen('plans')}
         />
+
 
     </>
   );
