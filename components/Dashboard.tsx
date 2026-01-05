@@ -131,9 +131,9 @@ setIsGenerating(false);
 // 🔒 Bloqueio real por limite (backend)
 if (result?.error === 'LIMIT_REACHED') {
   setUsage({ used: result.used ?? 0 });
-  onUpgrade?.();
   return;
 }
+
 
 // ❌ Erro técnico
 if (result?.error) {
