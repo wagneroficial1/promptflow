@@ -111,8 +111,40 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleGenerate = async () => {
   console.log('HANDLE GENERATE DISPAROU');
-    setIsGenerating(true);
-    setGeneratedPrompt(''); // Clear previous
+  setIsGenerating(true);
+  setGeneratedPrompt('');
+
+  // 🔒 GARANTIR QUE A SESSÃO JÁ EXISTE
+  const { data } = await supabase.auth.getSession();
+
+  if (!data?.session?.access_token) {
+    alert('Sessão ainda não carregada. Recarregue a página.');
+    setIsGenerating(false);
+    return;
+  }
+
+  const result = await generateProfessionalPrompt(
+    selectedTemplate.systemInstruction,
+    formValues,
+    targetLanguage,
+    targetPlatform
+  );
+
+  // 🔒 BLOQUEIO REAL POR LIMITE (backend)
+  if (result === 'LIMIT_REACHED') {
+    setIsGenerating(false);
+    return;
+  }
+
+  if (typeof result === 'string') {
+    incrementUsage();
+    setUsage(loadUsage());
+    setGeneratedPrompt(result);
+  }
+
+  setIsGenerating(false);
+};
+
     
     const result = await generateProfessionalPrompt(
       selectedTemplate.systemInstruction, 
