@@ -135,10 +135,9 @@ if (result === 'LIMIT_REACHED') {
 
 
 if (typeof result === 'string' && result !== 'LIMIT_REACHED') {
-  incrementUsage();
-  setUsage(loadUsage());
   setGeneratedPrompt(result);
 }
+
 
 setIsGenerating(false);
 
