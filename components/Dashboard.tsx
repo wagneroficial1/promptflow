@@ -78,7 +78,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   setUsage(u);
 }, []);
 
-  const remaining = 0;
+  const remaining = Math.max(0, (plan.limit ?? 0) - (usage.used ?? 0));
 
   // Form State
   const [formValues, setFormValues] = useState<Record<string, string>>({});
