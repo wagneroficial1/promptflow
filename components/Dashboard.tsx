@@ -1,3 +1,4 @@
+import { supabase } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
 import { User, PromptCategory, PromptTemplate, FavoritePrompt } from '../types';
 import { PROMPT_TEMPLATES } from '../constants';
