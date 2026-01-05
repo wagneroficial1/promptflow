@@ -124,7 +124,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
 // 🔒 BLOQUEIO REAL POR LIMITE (fonte da verdade = backend)
 if (result === 'LIMIT_REACHED') {
   setIsGenerating(false);
-  onUpgrade?.();
   return;
 }
 
