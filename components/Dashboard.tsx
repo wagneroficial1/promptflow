@@ -68,6 +68,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<FavoritePrompt[]>([]);
 
+  const [sessionReady, setSessionReady] = useState(false);
+
   // const [usage, setUsage] = useState(() => loadUsage());
 
   const [usage, setUsage] = useState<{ used: number }>({ used: 0 });
@@ -78,6 +80,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     console.log('[PromptFlow][Dashboard] loadUsage():', u);
     setUsage({ used: u.used });
   }, [user.id]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setSessionReady(true);
+    });
+  }, []);
 
   const remaining = Math.max(0, (plan.limit ?? 0) - (usage.used ?? 0));
 
@@ -201,6 +209,14 @@ if (result?.text) {
     setShowFavorites(false);
   };
 
+if (!sessionReady) {
+  return (
+    <div className="flex h-screen items-center justify-center text-slate-400">
+      Validando sessão…
+    </div>
+  );
+}
+  
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row transition-colors duration-300">
       {/* Sidebar Navigation */}
