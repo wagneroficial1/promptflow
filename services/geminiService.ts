@@ -62,7 +62,8 @@ async function generateWithRetry(params: {
         }),
       });
 
-      const data = await res.json();
+      const json = await res.json();
+
 
       // Limite atingido -> propaga erro específico
       if (!res.ok) {
