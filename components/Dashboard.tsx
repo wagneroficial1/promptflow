@@ -124,8 +124,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
 // 🔒 BLOQUEIO REAL POR LIMITE (fonte da verdade = backend)
 if (result === 'LIMIT_REACHED') {
   setIsGenerating(false);
+
+  // força a UI a refletir o bloqueio do backend
+  setUsage({ used: plan.limit });
+
   return;
 }
+
 
 
 if (typeof result === 'string' && result !== 'LIMIT_REACHED') {
