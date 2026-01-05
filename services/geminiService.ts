@@ -47,8 +47,12 @@ async function generateWithRetry(params: {
       const token = session?.access_token;
       
       if (!token) {
-        return { error: 'UNAUTHORIZED' };
+        const err: any = new Error('UNAUTHORIZED');
+        err.status = 401;
+        err.code = 'UNAUTHORIZED';
+        throw err;
       }
+
 
       const res = await fetch('/api/generatePrompt', {
       method: 'POST',
