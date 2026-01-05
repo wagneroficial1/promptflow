@@ -38,7 +38,8 @@ export function loadUsage(userId?: string): UsageState {
   }
 }
 
-export function saveUsage(state: UsageState) {
+export function saveUsage(state: UsageState, userId?: string) {
+  const KEY = userId ? getUsageKey(userId) : BASE_KEY;
   localStorage.setItem(KEY, JSON.stringify(state));
 }
 
