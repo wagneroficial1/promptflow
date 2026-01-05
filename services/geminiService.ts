@@ -99,7 +99,7 @@ export const generateProfessionalPrompt = async (
   targetPlatform: string = "ChatGPT"
 ): Promise<{
   text?: string;
-  error?: 'LIMIT_REACHED' | 'GENERIC_ERROR';
+  error?: 'LIMIT_REACHED' | 'UNAUTHORIZED' | 'GENERIC_ERROR';
   used?: number;
   remaining?: number;
   limit?: number;
@@ -111,31 +111,38 @@ export const generateProfessionalPrompt = async (
     inputDescription += `- ${key}: ${value}\n`;
   }
 
-  inputDescription += `\nCom base nisso, gere o Prompt final otimizado.`;
+  inputDescription += `\nCom base nisso, gere o Prompt final otimizado.
+- O resultado final deve ser escrito em: ${targetLanguage}.
+- Adapte o prompt para a plataforma: ${targetPlatform}.
+Gere APENAS o prompt final.`;
 
   try {
-    // Pega o token do usuário logado (mesmo método do generateWithRetry)
-const sessionRaw = localStorage.getItem('sb-mzyumkehycctfzsbzgzo-auth-token');
-const session = sessionRaw ? JSON.parse(sessionRaw) : null;
-const token = session?.access_token;
+    // 🔑 TOKEN DO USUÁRIO (OBRIGATÓRIO PARA NÃO DAR 401/403)
+    const sessionRaw = localStorage.getItem('sb-mzyumkehycctfzsbzgzo-auth-token');
+    const session = sessionRaw ? JSON.parse(sessionRaw) : null;
+    const token = session?.access_token;
 
-const res = await fetch('/api/generatePrompt', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  },
-  body: JSON.stringify({
-    systemInstruction,
-    inputDescription,
-    targetLanguage,
-    targetPlatform,
-  }),
-});
+    const res = await fetch('/api/generatePrompt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        systemInstruction,
+        inputDescription,
+        model: 'gemini-1.5-flash',
+        temperature: 0.7,
+      }),
+    });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
+      if (res.status === 401) {
+        return { error: 'UNAUTHORIZED' };
+      }
+
       if (data?.error === 'LIMIT_REACHED') {
         return {
           error: 'LIMIT_REACHED',
