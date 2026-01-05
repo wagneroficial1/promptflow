@@ -82,22 +82,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, [user.id]);
 
   useEffect(() => {
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        // terminou de checar a sessão (exista ou não)
-        setSessionReady(true);
-  
-        // se NÃO tem sessão, não pode ficar no Dashboard
-        if (!data.session) {
-          onLogout();
-        }
-      })
-      .catch(() => {
-        setSessionReady(true);
-        onLogout();
-      });
-  }, [onLogout]);
+  supabase.auth
+    .getSession()
+    .then(({ data }) => {
+      setSessionReady(true);
+      if (!data.session) onLogout();
+    })
+    .catch(() => {
+      setSessionReady(true);
+      onLogout();
+    });
+}, [onLogout]);
 
 
   const remaining = Math.max(0, (plan.limit ?? 0) - (usage.used ?? 0));
