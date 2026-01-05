@@ -120,26 +120,37 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setGeneratedPrompt(''); // Clear previous
     
     const result = await generateProfessionalPrompt(
-      selectedTemplate.systemInstruction, 
-      formValues,
-      targetLanguage,
-      targetPlatform
-    );
+  selectedTemplate.systemInstruction,
+  formValues,
+  targetLanguage,
+  targetPlatform
+);
 
-// 🔒 BLOQUEIO REAL POR LIMITE (fonte da verdade = backend)
-if (result === 'LIMIT_REACHED') {
-  setIsGenerating(false);
+setIsGenerating(false);
+
+// 🔒 Bloqueio real por limite (backend)
+if (result?.error === 'LIMIT_REACHED') {
+  setUsage({ used: result.used ?? 0 });
   onUpgrade?.();
   return;
 }
 
-
-if (typeof result === 'string' && result !== 'LIMIT_REACHED') {
-  setGeneratedPrompt(result);
+// ❌ Erro técnico
+if (result?.error) {
+  setErrorMessage('Erro ao conectar com a IA. Tente novamente mais tarde.');
+  return;
 }
 
+// ✅ Sucesso
+if (result?.text) {
+  setGeneratedPrompt(result.text);
 
-setIsGenerating(false);
+  // Atualiza contador real do backend
+  if (typeof result.used === 'number') {
+    setUsage({ used: result.used });
+  }
+}
+
 
 
   };
