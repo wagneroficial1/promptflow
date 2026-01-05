@@ -43,23 +43,23 @@ export function saveUsage(state: UsageState, userId?: string) {
   localStorage.setItem(KEY, JSON.stringify(state));
 }
 
-export function setPlan(planId: PlanId) {
-  const current = loadUsage();
+export function setPlan(planId: PlanId, userId?: string) {
+  const current = loadUsage(userId);
   const next: UsageState = { ...current, planId };
-  saveUsage(next);
+  saveUsage(next, userId);
   return next;
 }
 
-export function incrementUsage(by = 1) {
-  const current = loadUsage();
+export function incrementUsage(by = 1, userId?: string) {
+  const current = loadUsage(userId);
   const next: UsageState = { ...current, used: current.used + by };
-  saveUsage(next);
+  saveUsage(next, userId);
   return next;
 }
 
-export function resetUsage() {
-  const current = loadUsage();
+export function resetUsage(userId?: string) {
+  const current = loadUsage(userId);
   const next: UsageState = { ...current, used: 0 };
-  saveUsage(next);
+  saveUsage(next, userId);
   return next;
 }
