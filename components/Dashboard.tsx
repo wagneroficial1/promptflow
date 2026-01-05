@@ -67,7 +67,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<FavoritePrompt[]>([]);
 
-  const [usage, setUsage] = useState(() => loadUsage());
+  // const [usage, setUsage] = useState(() => loadUsage());
+
+  const [usage, setUsage] = useState<{ used: number }>({ used: 0 });
+
 
   useEffect(() => {
   const u = loadUsage();
@@ -75,7 +78,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   setUsage(u);
 }, []);
 
-  const remaining = Math.max(0, plan.limit - usage.used);
+  const remaining = 0;
 
   // Form State
   const [formValues, setFormValues] = useState<Record<string, string>>({});
