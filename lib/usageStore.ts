@@ -13,8 +13,9 @@ function getUsageKey(userId: string) {
 }
 
 
-export function loadUsage(): UsageState {
+export function loadUsage(userId?: string): UsageState {
   const monthKey = getMonthKey();
+  const KEY = userId ? getUsageKey(userId) : BASE_KEY;
 
   try {
     const raw = localStorage.getItem(KEY);
