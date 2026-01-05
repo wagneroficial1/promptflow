@@ -114,18 +114,24 @@ export const generateProfessionalPrompt = async (
   inputDescription += `\nCom base nisso, gere o Prompt final otimizado.`;
 
   try {
-    const res = await fetch('/api/generatePrompt', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        systemInstruction,
-        inputDescription,
-        targetLanguage,
-        targetPlatform,
-      }),
-    });
+    // Pega o token do usuário logado (mesmo método do generateWithRetry)
+const sessionRaw = localStorage.getItem('sb-mzyumkehycctfzsbzgzo-auth-token');
+const session = sessionRaw ? JSON.parse(sessionRaw) : null;
+const token = session?.access_token;
+
+const res = await fetch('/api/generatePrompt', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  },
+  body: JSON.stringify({
+    systemInstruction,
+    inputDescription,
+    targetLanguage,
+    targetPlatform,
+  }),
+});
 
     const data = await res.json();
 
